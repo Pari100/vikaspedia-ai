@@ -1,0 +1,83 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Outfit:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Using CSS variables for font families to be used in Tailwind config */
+  --font-sans: 'DM Sans', sans-serif;
+  --font-display: 'Outfit', sans-serif;
+  
+  /* Color Palette - Vibrant Purple/Indigo & Clean White */
+  --background: 240 20% 99%;
+  --foreground: 224 71% 4%;
+  
+  --primary: 262 83% 58%;
+  --primary-foreground: 210 40% 98%;
+  
+  --secondary: 220 14% 96%;
+  --secondary-foreground: 220.9 39.3% 11%;
+  
+  --muted: 220 14% 96%;
+  --muted-foreground: 220 8.9% 46.1%;
+  
+  --accent: 262 83% 96%;
+  --accent-foreground: 262 83% 58%;
+  
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 210 40% 98%;
+  
+  --border: 220 13% 91%;
+  --input: 220 13% 91%;
+  --ring: 262 83% 58%;
+  
+  --radius: 0.75rem;
+}
+
+@layer base {
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: var(--font-sans);
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    @apply font-bold tracking-tight text-slate-900;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-200 rounded-full hover:bg-slate-300 transition-colors;
+}
+
+/* Highlight Animation */
+.highlight-word {
+  background-color: #ffd700;
+  color: #000;
+  border-radius: 2px;
+  transition: background-color 0.1s ease-out;
+}
+
+.highlight-current {
+  background-color: #7c3aed; /* Purple-600 */
+  color: white;
+  box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.2);
+  transform: scale(1.05);
+  display: inline-block;
+  padding: 0 2px;
+  border-radius: 4px;
+}
