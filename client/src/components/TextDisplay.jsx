@@ -1,17 +1,48 @@
 import { Box, Paper, Typography } from '@mui/material';
 import { useMemo, useEffect, useRef } from 'react';
 
-interface TextDisplayProps {
-  text: string;
-  activeCharIndex: number;
-}
+/**
+ * @typedef {Object} TextDisplayProps
+ * @property {string} text
+ * @property {number} activeCharIndex
+ */
 
-export default function TextDisplay({ text, activeCharIndex }: TextDisplayProps) {
-  const scrollRef = useRef<HTMLDivElement>(null);
+export default function TextDisplay({ text, activeCharIndex }) {
+  const scrollRef = useRef(null);
+  
+  // Calculate dynamic spacing based on text length
+  const textLength = text.length;
+  const isLongText = textLength > 500;
+  const isVeryLongText = textLength > 1000;
+  
+  const dynamicSpacing = useMemo(() => {
+    if (isVeryLongText) {
+      return {
+        padding: 0.8,
+        lineHeight: 1.4,
+        fontSize: { xs: '0.95rem', md: '1.2rem' },
+        marginBottom: '0.4rem'
+      };
+    } else if (isLongText) {
+      return {
+        padding: 1,
+        lineHeight: 1.5,
+        fontSize: { xs: '1rem', md: '1.4rem' },
+        marginBottom: '0.6rem'
+      };
+    } else {
+      return {
+        padding: 1.5,
+        lineHeight: 1.8,
+        fontSize: { xs: '1.25rem', md: '1.6rem' },
+        marginBottom: '0.8rem'
+      };
+    }
+  }, [textLength, isLongText, isVeryLongText]);
   
   // Detect sentences with proper boundaries
   const sentences = useMemo(() => {
-    const result: { start: number; end: number; sentenceIndex: number }[] = [];
+    const result = [];
     let sentenceStart = 0;
     let sentenceCount = 0;
 
@@ -40,7 +71,7 @@ export default function TextDisplay({ text, activeCharIndex }: TextDisplayProps)
   }, [text]);
 
   const words = useMemo(() => {
-    const result: { word: string; start: number; end: number; sentenceIndex: number }[] = [];
+    const result = [];
     const regex = /\S+/g;
     let match;
 
@@ -85,7 +116,7 @@ export default function TextDisplay({ text, activeCharIndex }: TextDisplayProps)
     }
   }, [activeWordIndex]);
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e) => {
     // Only allow paste via button, not keyboard shortcut
     if ((e.ctrlKey || e.metaKey) && (e.key === 'v' || e.key === 'V')) {
       e.preventDefault();
@@ -97,11 +128,11 @@ export default function TextDisplay({ text, activeCharIndex }: TextDisplayProps)
       ref={scrollRef}
       onKeyDown={handleKeyDown}
       sx={{
-        p: 1.5,
+        p: dynamicSpacing.padding,
         minHeight: 250,
         height: '100%',
         overflowY: 'auto',
-        lineHeight: 1.8,
+        lineHeight: dynamicSpacing.lineHeight,
         flex: 1,
         userSelect: 'text',
       }}
@@ -128,21 +159,20 @@ export default function TextDisplay({ text, activeCharIndex }: TextDisplayProps)
               data-word-index={wordIdx}
               sx={{
                 display: 'inline-block',
-                fontSize: { xs: '1.25rem', md: '1.6rem' },
+                fontSize: dynamicSpacing.fontSize,
                 lineHeight: 1.6,
                 fontFamily: 'inherit',
-                transition: 'all 0.15s ease',
+                transition: 'background-color 0.1s ease, color 0.1s ease',
                 color: isActive ? 'white' : 'text.primary',
                 backgroundColor: isActive 
                   ? '#1e40af'  // Dark blue for active word
                   : isInActiveSentence 
                   ? '#dbeafe'  // Light blue for active sentence
                   : 'transparent',
-                fontWeight: isActive ? 700 : 400,
-                borderRadius: isActive ? '6px' : '2px',
-                px: isActive ? 0.8 : isInActiveSentence ? 0.3 : 0,
-                py: isActive ? 0.4 : isInActiveSentence ? 0.15 : 0,
-                boxShadow: isActive ? '0 4px 12px rgba(30, 64, 175, 0.4)' : 'none',
+                fontWeight: 400,
+                borderRadius: '4px',
+                px: 0.4,
+                py: 0.2,
                 position: 'relative',
                 zIndex: isActive ? 2 : isInActiveSentence ? 1 : 0,
                 verticalAlign: 'baseline'

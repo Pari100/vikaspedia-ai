@@ -10,16 +10,16 @@ Select a language from the dropdown below. The text will automatically translate
 
 export default function Home() {
   const [text, setText] = useState(DEFAULT_TEXT);
-  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
-  const [selectedVoice, setSelectedVoice] = useState<SpeechSynthesisVoice | null>(null);
+  const [voices, setVoices] = useState([]);
+  const [selectedVoice, setSelectedVoice] = useState(null);
   const [rate, setRate] = useState(1);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [charIndex, setCharIndex] = useState(-1);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState(null);
   const [isTranslating, setIsTranslating] = useState(false);
 
-  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const utteranceRef = useRef(null);
 
   const indianLanguages = {
     'en': ['en-IN'],
@@ -66,7 +66,7 @@ export default function Home() {
     };
   }, []);
 
-  const translateText = async (targetLang: string) => {
+  const translateText = async (targetLang) => {
     if (!text.trim()) return;
     const targetCode = targetLang.split('-')[0];
     setIsTranslating(true);
@@ -74,7 +74,7 @@ export default function Home() {
       const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetCode}&dt=t&q=${encodeURIComponent(text)}`;
       const response = await fetch(url);
       const data = await response.json();
-      const translatedText = data[0].map((x: any) => x[0]).join('');
+      const translatedText = data[0].map((x) => x[0]).join('');
       setText(translatedText);
     } catch (err) {
       console.error("Translation error", err);
@@ -84,7 +84,7 @@ export default function Home() {
     }
   };
 
-  const handleVoiceChange = (voice: SpeechSynthesisVoice | null) => {
+  const handleVoiceChange = (voice) => {
     setSelectedVoice(voice);
     if (voice && text.trim()) {
       translateText(voice.lang);
@@ -110,15 +110,35 @@ export default function Home() {
       utterance.rate = rate;
       utterance.lang = selectedVoice.lang;
       
+      let startTime = null;
+      let pauseTime = null;
+      let animationFrameId = null;
+      const charsPerSecond = 12; // Estimate average speaking speed
+
+      const updateCharIndexByTime = () => {
+        if (!startTime) return;
+        const now = Date.now();
+        const elapsedMs = now - startTime;
+        const elapsedChars = Math.floor((elapsedMs / 1000) * charsPerSecond * rate);
+        setCharIndex(Math.min(elapsedChars, text.length - 1));
+        
+        if (window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
+          animationFrameId = requestAnimationFrame(updateCharIndexByTime);
+        }
+      };
+      
       utterance.onstart = () => {
         setIsPlaying(true);
         setIsPaused(false);
+        startTime = Date.now();
+        animationFrameId = requestAnimationFrame(updateCharIndexByTime);
       };
 
       utterance.onend = () => {
         setIsPlaying(false);
         setIsPaused(false);
         setCharIndex(-1);
+        if (animationFrameId) cancelAnimationFrame(animationFrameId);
       };
       
       utterance.onerror = (event) => {
@@ -126,11 +146,25 @@ export default function Home() {
         setIsPlaying(false);
         setIsPaused(false);
         setError("Playback failed. Try another voice or refresh.");
+        if (animationFrameId) cancelAnimationFrame(animationFrameId);
       };
 
-      utterance.onpause = () => setIsPaused(true);
-      utterance.onresume = () => setIsPaused(false);
+      utterance.onpause = () => {
+        setIsPaused(true);
+        pauseTime = Date.now();
+        if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      };
 
+      utterance.onresume = () => {
+        setIsPaused(false);
+        if (pauseTime) {
+          startTime += Date.now() - pauseTime;
+          pauseTime = null;
+        }
+        animationFrameId = requestAnimationFrame(updateCharIndexByTime);
+      };
+
+      // Primary: Use onboundary if available (better support on desktop)
       utterance.onboundary = (event) => {
         if (event.name === 'word') {
           setCharIndex(event.charIndex);
@@ -161,7 +195,7 @@ export default function Home() {
     setCharIndex(-1);
   };
 
-  const handleRateChange = (newRate: number) => {
+  const handleRateChange = (newRate) => {
     setRate(newRate);
     if (isPlaying) {
       handlePlay();

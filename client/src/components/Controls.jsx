@@ -9,7 +9,6 @@ import {
   Typography, 
   Stack,
   Paper,
-  SelectChangeEvent,
   IconButton,
   Tooltip,
   Snackbar,
@@ -29,22 +28,6 @@ import {
 } from '@mui/icons-material';
 import { useRef, useState } from 'react';
 
-interface ControlsProps {
-  isPlaying: boolean;
-  isPaused: boolean;
-  onPlay: () => void;
-  onPause: () => void;
-  onResume: () => void;
-  onStop: () => void;
-  voices: SpeechSynthesisVoice[];
-  selectedVoice: SpeechSynthesisVoice | null;
-  onVoiceChange: (voice: SpeechSynthesisVoice | null) => void;
-  rate: number;
-  onRateChange: (rate: number) => void;
-  text: string;
-  onTextChange: (text: string) => void;
-}
-
 export default function Controls({
   isPlaying,
   isPaused,
@@ -59,12 +42,12 @@ export default function Controls({
   onRateChange,
   text,
   onTextChange
-}: ControlsProps) {
-  const fileInputRef = useRef<HTMLInputElement>(null);
+}) {
+  const fileInputRef = useRef(null);
   const [pasteSuccess, setPasteSuccess] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
   
-  const handleVoiceChange = (event: SelectChangeEvent) => {
+  const handleVoiceChange = (event) => {
     const voiceName = event.target.value;
     const voice = voices.find(v => v.name === voiceName) || null;
     onVoiceChange(voice);
@@ -87,12 +70,12 @@ export default function Controls({
     setTimeout(() => setCopySuccess(false), 2000);
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = (event) => {
     const file = event.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onload = (e) => {
-        const content = e.target?.result as string;
+        const content = e.target?.result;
         onTextChange(content);
       };
       reader.readAsText(file);
@@ -107,7 +90,7 @@ export default function Controls({
   const supportedLangs = ['hi-IN', 'gu-IN', 'mr-IN', 'ta-IN', 'te-IN', 'en-IN'];
   
   // Language code mapping for display
-  const langNames: Record<string, string> = {
+  const langNames = {
     'en': 'English',
     'hi': 'हिन्दी (Hindi)',
     'gu': 'ગુજરાતી (Gujarati)',
@@ -128,11 +111,11 @@ export default function Controls({
     }
     acc[langCode].push(voice);
     return acc;
-  }, {} as Record<string, SpeechSynthesisVoice[]>);
+  }, {});
 
   // Sort language codes by Indian priority
   const sortedLangCodes = Object.keys(groupedVoices).sort((a, b) => {
-    const priority: Record<string, number> = { 'en': 0, 'hi': 1, 'gu': 2, 'mr': 3, 'ta': 4, 'te': 5 };
+    const priority = { 'en': 0, 'hi': 1, 'gu': 2, 'mr': 3, 'ta': 4, 'te': 5 };
     return (priority[a] || 999) - (priority[b] || 999);
   });
 
@@ -294,7 +277,7 @@ export default function Controls({
               min={0.5}
               max={2}
               step={0.1}
-              onChange={(_, value) => onRateChange(value as number)}
+              onChange={(_, value) => onRateChange(value)}
               valueLabelDisplay="auto"
               marks={[
                 { value: 0.5, label: '0.5x' },
