@@ -175,10 +175,23 @@ export default function Home() {
       <Container maxWidth="xl"  sx={{ py: { xs: 4, md: 8 } }}>
         <Fade in timeout={800}>
           <Box>
-            <Box mb={8} textAlign="center">
+            <Box mb={8} textAlign="center" sx={{ bgcolor: 'white', py: 6, borderRadius: 2, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
+              <Box 
+                component="img"
+                src="/vikaspedia.png"
+                alt="Vikaspedia Logo"
+                sx={{ 
+                  width: { xs: 80, md: 120 },
+                  height: { xs: 80, md: 120 },
+                  objectFit: 'contain',
+                  margin: '0 auto',
+                  mb: 2,
+                  display: 'block'
+                }}
+              />
               <Typography variant="h1" gutterBottom sx={{ 
-                fontWeight: 900,
-                color: '#0f172a',
+                fontWeight: 500,
+                color: '#2e7d32',
                 letterSpacing: '-0.05em',
                 fontSize: { xs: '3rem', md: '5rem' },
                 animation: 'slideInDown 0.8s ease-out',
@@ -195,89 +208,78 @@ export default function Home() {
               }}>
                 Vikaspedia
               </Typography>
-              <Typography variant="h5" color="text.secondary" sx={{ mx: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2, fontWeight: 500 }}>
+              <Box display="flex" alignItems="center" gap={3} justifyContent="center" mt={3} mb={3}>
+                <Box 
+                  component="img"
+                  src="/cdac.png"
+                  alt="CDAC Logo"
+                  sx={{ 
+                    height: { xs: 35, md: 45 },
+                    width: 'auto',
+                    objectFit: 'contain'
+                  }}
+                />
+                <Box 
+                  component="img"
+                  src="/ministry.png"
+                  alt="Ministry Logo"
+                  sx={{ 
+                    height: { xs: 35, md: 45 },
+                    width: 'auto',
+                    objectFit: 'contain'
+                  }}
+                />
+              </Box>
+              <Typography variant="h6" sx={{ mx: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2, fontWeight: 400, color: '#475569', fontSize: { xs: '1rem', md: '1.25rem' }, letterSpacing: '0.3px' }}>
                 High-performance synchronized text-to-speech
                 {isTranslating && <CircularProgress size={24} thickness={6} />}
               </Typography>
             </Box>
 
-            {/* Editor and Reader in one row */}
-            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '30% 70%' }, gap: 1, mb: 6 }}>
-              <Paper elevation={0} sx={{ 
-                p: 0, 
-                borderRadius: 4, 
-                border: '1px solid', 
-                borderColor: 'divider',
-                overflow: 'hidden',
-                bgcolor: 'white',
-                display: 'flex',
-                flexDirection: 'column',
-                minWidth: 0
-              }}>
-                <Box sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider', bgcolor: '#f1f5f9' }}>
-                  <Typography variant="subtitle2" fontWeight={700} color="#1e293b" sx={{ fontSize: '0.85rem' }}>
-                    Editor
-                  </Typography>
+            {/* Reader Section Only */}
+            <Paper elevation={0} sx={{ 
+              p: 0, 
+              borderRadius: 4, 
+              border: '3px solid', 
+              borderColor: '#2563eb',
+              overflow: 'hidden',
+              bgcolor: 'white',
+              display: 'flex',
+              flexDirection: 'column',
+              minWidth: 0,
+              mb: 6,
+              boxShadow: '0 4px 20px rgba(37, 99, 235, 0.15)'
+            }}>
+              <Box sx={{ p: 2, borderBottom: '3px solid #2563eb', bgcolor: '#f1f5f9' }}>
+                <Typography variant="subtitle2" fontWeight={700} color="#1e293b" sx={{ fontSize: '0.85rem' }}>
+                  Reader
+                </Typography>
+              </Box>
+              {isTranslating && (
+                <Box sx={{ 
+                  position: 'absolute', 
+                  inset: 0, 
+                  bgcolor: 'rgba(255,255,255,0.9)', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center',
+                  zIndex: 10,
+                  backdropFilter: 'blur(4px)',
+                  borderRadius: 4
+                }}>
+                  <Box sx={{ textAlign: 'center' }}>
+                    <CircularProgress size={80} thickness={5} sx={{ mb: 2 }} />
+                    <Typography variant="body1" color="text.secondary">
+                      Processing...
+                    </Typography>
+                  </Box>
                 </Box>
-                <Box sx={{ p: 1.5, position: 'relative', minHeight: 250, overflowY: 'auto', flex: 1 }}>
-                  <TextField
-                    fullWidth
-                    multiline
-                    rows={6}
-                    placeholder="Input text here..."
-                    value={text}
-                    onChange={(e) => setText(e.target.value)}
-                    variant="standard"
-                    disabled={isTranslating}
-                    InputProps={{
-                      disableUnderline: true,
-                      sx: { 
-                        fontSize: { xs: '1rem', md: '1.4rem' },
-                        lineHeight: 1.5,
-                        fontWeight: 500,
-                        color: '#334155'
-                      }
-                    }}
-                  />
-                  {isTranslating && (
-                    <Box sx={{ 
-                      position: 'absolute', 
-                      inset: 0, 
-                      bgcolor: 'rgba(255,255,255,0.8)', 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      justifyContent: 'center',
-                      zIndex: 10,
-                      backdropFilter: 'blur(4px)'
-                    }}>
-                      <CircularProgress size={80} thickness={5} />
-                    </Box>
-                  )}
-                </Box>
-              </Paper>
-
-              <Paper elevation={0} sx={{ 
-                p: 0, 
-                borderRadius: 4, 
-                border: '1px solid', 
-                borderColor: 'divider',
-                overflow: 'hidden',
-                bgcolor: 'white',
-                display: 'flex',
-                flexDirection: 'column',
-                minWidth: 0
-              }}>
-                <Box sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider', bgcolor: '#f1f5f9' }}>
-                  <Typography variant="subtitle2" fontWeight={700} color="#1e293b" sx={{ fontSize: '0.85rem' }}>
-                    Reader
-                  </Typography>
-                </Box>
-                <TextDisplay 
-                  text={text} 
-                  activeCharIndex={charIndex} 
-                />
-              </Paper>
-            </Box>
+              )}
+              <TextDisplay 
+                text={text} 
+                activeCharIndex={charIndex} 
+              />
+            </Paper>
 
             {/* Playback Control below */}
             <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4, width: '100%' }}>

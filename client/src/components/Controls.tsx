@@ -11,7 +11,9 @@ import {
   Paper,
   SelectChangeEvent,
   IconButton,
-  Tooltip
+  Tooltip,
+  Snackbar,
+  Alert
 } from '@mui/material';
 import { 
   PlayArrowRounded, 
@@ -22,9 +24,10 @@ import {
   ContentPasteRounded,
   ContentCopyRounded,
   FileUploadRounded,
-  DeleteOutlineRounded
+  DeleteOutlineRounded,
+  CheckCircleRounded
 } from '@mui/icons-material';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 
 interface ControlsProps {
   isPlaying: boolean;
@@ -58,6 +61,8 @@ export default function Controls({
   onTextChange
 }: ControlsProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [pasteSuccess, setPasteSuccess] = useState(false);
+  const [copySuccess, setCopySuccess] = useState(false);
   
   const handleVoiceChange = (event: SelectChangeEvent) => {
     const voiceName = event.target.value;
@@ -69,6 +74,8 @@ export default function Controls({
     try {
       const clipboardText = await navigator.clipboard.readText();
       onTextChange(clipboardText);
+      setPasteSuccess(true);
+      setTimeout(() => setPasteSuccess(false), 2000);
     } catch (err) {
       console.error('Failed to read clipboard', err);
     }
@@ -76,6 +83,8 @@ export default function Controls({
 
   const handleCopy = () => {
     navigator.clipboard.writeText(text);
+    setCopySuccess(true);
+    setTimeout(() => setCopySuccess(false), 2000);
   };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -134,6 +143,7 @@ export default function Controls({
   const showPlay = !isPlaying;
 
   return (
+    <>
     <Paper 
       elevation={0}
       sx={{ 
@@ -300,5 +310,39 @@ export default function Controls({
         </Stack>
       </Stack>
     </Paper>
+
+    {/* Success Notifications */}
+    <Snackbar 
+      open={pasteSuccess} 
+      autoHideDuration={2000} 
+      onClose={() => setPasteSuccess(false)}
+      anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+    >
+      <Alert 
+        severity="success" 
+        variant="filled"
+        icon={<CheckCircleRounded />}
+        sx={{ borderRadius: 2, fontWeight: 600 }}
+      >
+        Text pasted to reader successfully!
+      </Alert>
+    </Snackbar>
+
+    <Snackbar 
+      open={copySuccess} 
+      autoHideDuration={2000} 
+      onClose={() => setCopySuccess(false)}
+      anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+    >
+      <Alert 
+        severity="success" 
+        variant="filled"
+        icon={<CheckCircleRounded />}
+        sx={{ borderRadius: 2, fontWeight: 600 }}
+      >
+        Text copied to clipboard!
+      </Alert>
+    </Snackbar>
+    </>
   );
 }
